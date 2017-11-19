@@ -1,0 +1,104 @@
+#include <GLFW\glfw3.h>
+
+
+#include <cMath>
+
+using namespace std;
+
+const float ox1 = 0.5, ox2 = -.5, ox3 = 0, oy1 = -0.6, oy2 = -0.6, oy3 =0.8f;
+void drawSubTriangle(float x1, float x2, float x3, float y1, float y2, float y3);
+void drawFractals(float x1, float x2, float x3, float y1, float y2, float y3);
+
+int main(void) {
+	if (!glfwInit()) {
+		exit(EXIT_FAILURE);
+	}
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	GLFWwindow* window = glfwCreateWindow(480, 480, " Sierpinski Trianglee", NULL, NULL);
+	if (!window) {
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
+	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1);
+
+	
+	while (!glfwWindowShouldClose(window)) {
+		//Setup View
+		float ratio;
+		int width, height;
+		glfwGetFramebufferSize(window, &width, &height);
+		ratio = width / (float)height;
+		glViewport(0, 0, width, height);
+		glClearColor(.9, 1, .95, 1);
+		glClear(GL_COLOR_BUFFER_BIT);
+		
+		//draw
+		//set the colors
+		glColor3f(1.0f, 1.0f,1.0f);
+		//draw triangles with midpoints of the original triangle
+		glBegin(GL_TRIANGLES);
+		{
+			glVertex3f(ox1, oy1, 0.0);
+			glVertex3f(ox2, oy2, 0.0);
+			glVertex3f(ox3 , oy3, 0.0);
+		}
+		glEnd();
+
+		drawFractals(ox1, ox2, ox3, oy1, oy2, oy3);
+		glFlush();
+
+		
+		//Swap buffer and check for events
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+
+	glfwDestroyWindow(window);
+	glfwTerminate;
+	exit(EXIT_SUCCESS);
+	
+}
+
+void drawSubTriangle(float x1, float x2, float x3, float y1, float y2, float y3)
+{
+	//set the colors
+	glColor3f(0.0f, 0.0f,.9f);
+	//draw triangles with midpoints of the original triangle
+	glBegin(GL_TRIANGLES);
+
+	{
+
+		glVertex3f((x1 + x3) / 2, (y1 + y3) / 2, 0.0);
+
+		glVertex3f((x2 + x3) / 2, (y2 + y3) / 2, 0.0);
+
+		glVertex3f((x2 + x1) / 2, (y2 + y1) / 2, 0.0);
+
+	}
+
+	glEnd();
+}
+
+void drawFractals(float x1, float x2, float x3, float y1, float y2, float y3)
+{
+	drawSubTriangle(x1, x2, x3, y1, y2, y3);
+	//ensure that the size of the triangles is not too small
+	//distance formula is in the if condition
+	if (pow((pow((x2 - x1), 2) + pow((y2 - y1), 2)), 0.5) > 0.0625)
+	{
+		drawFractals((x1 + x3) / 2, (x3 + x2) / 2, x3, (y1 + y3) / 2, (y3 + y2) / 2, y3); //top triangle
+		drawFractals(x1, (x1 + x2) / 2, (x1 + x3) / 2, y1, (y1 + y2) / 2, (y1 + y3) / 2); //left triangle
+		drawFractals((x1 + x2) / 2, x2, (x3 + x2) / 2, (y1 + y2) / 2, y2, (y3 + y2) / 2); //right triangle
+	}
+}
+
+
+
+
+
+
+
+
+
